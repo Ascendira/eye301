@@ -1,3 +1,5 @@
+from datetime import datetime
+from django.utils import timezone
 import json
 
 # Create your views here.
@@ -22,6 +24,12 @@ response_template = {
 
 class PatientInfoView(View):
     def post(self, request, date):
+        try:
+            naive_date = datetime.strptime(date, "%Y-%m-%d-%H-%M-%S")
+            diagnosis_date = timezone.make_aware(naive_date)
+        except ValueError:
+            return JsonResponse({'success': False, 'errCode': 400, 'message': '日期格式错误'}, status=400)
+
         data = json.loads(request.body)['data']
 
         #try:
@@ -38,6 +46,7 @@ class PatientInfoView(View):
                     'nation':data['nation'],
                     'allergy_history':data['allergy_history'],  # 过敏史
                     'other_allergy_history':data['other_allergy_history'],
+                    'diagnosis_date': diagnosis_date
                 }
             )
 
@@ -148,6 +157,7 @@ class PatientInfoView(View):
 
         return JsonResponse(response_template)
 
+
 class PatientInfos(View):
     def get(self, request, pageNum, pageSize):
         data = mBaseInfo.objects.all().values()
@@ -161,7 +171,7 @@ class PatientInfos(View):
                 baseinfo.update({'otherInfo': otherInfo[0]})
             else:
                 baseinfo.update({'otherInfo': {}})
-        l = (pageNum - 1) * pageSize
+        l = pageNum * pageSize
         r = l + pageSize
         if l >= len(data):
             return JsonResponse({'data': []})
@@ -200,16 +210,21 @@ class BaseInfo(View):
         return JsonResponse(response_template)
 
     def get(self, request, pageNum, pageSize):
-        data = mBaseInfo.objects.all().values()
+        data = mBaseInfo.objects.all().order_by('-diagnosis_date').values()
         data = list(data)
+        length = len(data)
         l = pageNum * pageSize
         r = l + pageSize
         if l > len(data):
             return JsonResponse({'data': []})
         elif r >= len(data):
-            data = data[l - pageSize:len(data)]
+            data = data[l:len(data)]
         else:
-            data = data[l - pageSize:r]
-        response = response_template.copy()
-        response['data'] = data
+            data = data[l:r]
+        response = {
+            'success': True,
+            'errCode': 0,
+            'total': length,
+            'data': data
+        }
         return JsonResponse(response)

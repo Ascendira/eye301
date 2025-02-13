@@ -15,6 +15,7 @@ class BaseInfo(models.Model):
     nation = models.CharField(max_length=255, verbose_name='民族')
     allergy_history = models.CharField(max_length=255, verbose_name='过敏史', null=True, blank=True)
     other_allergy_history = models.TextField(verbose_name='其他过敏史', null=True, blank=True)
+    diagnosis_date = models.DateTimeField(verbose_name='诊断日期', null=True, blank=True)
 
     def __str__(self):
         return self.name
