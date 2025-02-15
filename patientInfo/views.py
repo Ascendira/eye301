@@ -19,7 +19,7 @@ from patientInfo.models import OtherInfo
 
 response_template = {
     "success": True,
-    "errCode": 0,
+    "errCode": 200,
     "data": {
     }
 }
@@ -300,4 +300,4 @@ class Image(View):
                 if os.path.exists(img_path):
                     return FileResponse(open(img_path, 'rb'), as_attachment=True, filename=img_name)
 
-        return JsonResponse({'success': False, 'message': 'File does not exist'}, status=404)
+        return JsonResponse({'success': False, 'errCode': 404, 'message': 'File does not exist'}, status=404)
