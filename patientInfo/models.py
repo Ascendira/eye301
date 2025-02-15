@@ -114,3 +114,18 @@ class OtherInfo(models.Model):
 
     def __str__(self):
         return self.patient_id
+
+
+# X -- jpg/png/pdf
+# CT
+# 轴位：pID_ct_axis.X
+# 矢状位：pID_ct_sagittal.X
+# 冠状位： pID_ct_coronal.X
+###
+# 正面照： pID_frontal.X
+# 眼前节照： pID_front_eye.X
+# 病例报告： pID_pathology_report.X
+###
+# 术中切除物： pID_intraoperative_resection.X
+# 鼻内镜检查： pID_nasal_endoscopy.X
+# 泪小管内镜： pID_lacrimal_endoscopy.X

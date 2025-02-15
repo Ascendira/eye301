@@ -23,6 +23,7 @@ app_name = 'patientInfo'
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path('index/', patientInfo.views.index),
     path("basicInfo/add/<str:date>",patientInfo.views.BaseInfo.as_view()),
     path("basicInfo/get/<int:pageNum>/<int:pageSize>",patientInfo.views.BaseInfo.as_view()),
     path("patientInfo/post/<str:date>",patientInfo.views.PatientInfoView.as_view()),
@@ -30,4 +31,6 @@ urlpatterns = [
     path("patientInfo/get/<str:patient_id>",patientInfo.views.PatientInfoView.as_view()),
     path("patientInfo/get/base/<str:patient_id>", patientInfo.views.PatientInfoView.as_view()),
     path("patientInfo/delete/<str:patient_id>", patientInfo.views.PatientInfoView.as_view()),
+    path("otherInfo/img/post/<str:patient_id>/<str:img_type>", patientInfo.views.Image.as_view()),
+    path("otherInfo/img/get/<str:patient_id>/<str:img_type>", patientInfo.views.Image.as_view())
 ]
