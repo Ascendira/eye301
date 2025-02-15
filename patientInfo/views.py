@@ -104,10 +104,6 @@ class PatientInfoView(View):
                     'right_nasal_cavity_occupancy':data['right_nasal_cavity_occupancy'],  # 右鼻腔占位
                     'other_nasal_endoscopy_info':data['other_nasal_endoscopy_info'],  # 其他
                     'other_body_or_systemic_disease':data['other_body_or_systemic_disease'],  # 其他部位或全身疾病
-                    'imaging_data':data['imaging_data'],  # 影像数据
-                    'photos':data['photos'],  # 正面照，眼前节照
-                    'pathology_report':data['pathology_report'],  # 病理报告
-                    'other_special_imaging_data':data['other_special_imaging_data'],  # 其他特殊影像资料
                 }
             )
         return JsonResponse(response_template)

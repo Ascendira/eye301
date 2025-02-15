@@ -24,8 +24,8 @@ class BaseInfo(models.Model):
 class EyeInfo(models.Model):
     patient_id = models.CharField(max_length=255)
     eye = models.CharField(max_length=16, verbose_name='眼别')
-    # 主诉
-    main_complaint = models.TextField(null=True, blank=True)
+
+    main_complaint = models.TextField(verbose_name='主诉', null=True, blank=True)
     tear_duration_months = models.FloatField(verbose_name='溢泪持续时间（月）', null=True, blank=True)
     tear_accompanying_symptoms = models.CharField(max_length=255, verbose_name='溢泪的伴随症状', null=True, blank=True)
     other_tear_accompanying_symptoms = models.TextField(verbose_name='溢泪的其他伴随症状', null=True, blank=True)
@@ -69,56 +69,48 @@ class OtherInfo(models.Model):
     # 病人ID，作为与其他表关联的主键
     patient_id = models.CharField(max_length=255, primary_key=True)
 
-    # 鼻部疾病史
-    nasal_disease_history = models.TextField(max_length=255, null=True, blank=True)
+    nasal_disease_history = models.TextField(verbose_name='鼻部疾病史', max_length=255, null=True, blank=True)
+    nasal_tumor = models.TextField(verbose_name='鼻腔肿瘤', null=True, blank=True)
+    nasal_septum_deviation = models.TextField(verbose_name='鼻中隔偏曲', null=True, blank=True)
+    nasal_surgery = models.TextField(verbose_name='鼻腔手术', null=True, blank=True)
 
-    # 鼻腔肿瘤
-    nasal_tumor = models.TextField(null=True, blank=True)
+    systemic_disease_and_history = models.TextField(verbose_name='全身疾病、特殊个人史及家族史', null=True, blank=True)
+    immune_system_disease = models.TextField(verbose_name='免疫系统疾病', null=True, blank=True)
+    tumor = models.TextField(verbose_name='肿瘤', null=True, blank=True)
+    other_info = models.TextField(verbose_name='其他', null=True, blank=True)
 
-    # 鼻中隔偏曲
-    nasal_septum_deviation = models.TextField(null=True, blank=True)
+    nasal_endoscopy = models.TextField(verbose_name='鼻内镜检查', null=True, blank=True)
 
-    # 鼻腔手术
-    nasal_surgery = models.TextField(null=True, blank=True)
+    left_nasal_cavity_occupancy = models.TextField(verbose_name='左鼻腔占位', null=True, blank=True)
+    right_nasal_cavity_occupancy = models.TextField(verbose_name='右鼻腔占位', null=True, blank=True)
+    other_nasal_endoscopy_info = models.TextField(verbose_name='其他', null=True, blank=True)
 
-    # 全身疾病、特殊个人史及家族史
-    systemic_disease_and_history = models.TextField(null=True, blank=True)
+    other_body_or_systemic_disease = models.TextField(verbose_name='其他部位或全身疾病', null=True, blank=True)
 
-    # 免疫系统疾病
-    immune_system_disease = models.TextField(null=True, blank=True)
+    # imaging_data = models.TextField(verbose_name='影像数据', null=True, blank=True)
+    # axis_ct = models.CharField(verbose_name='轴位CT图', max_length=255, null=True, blank=True)
+    # sagittal_ct = models.CharField(verbose_name='矢状位CT图', max_length=255, null=True, blank=True)
+    # coronal_ct = models.CharField(verbose_name='冠状位CT图', max_length=255, null=True, blank=True)
+    axis_ct = models.BooleanField(verbose_name='轴位CT图', default=False)
+    sagittal_ct = models.BooleanField(verbose_name='矢状位CT图', default=False)
+    coronal_ct = models.BooleanField(verbose_name='冠状位CT图', default=False)
 
-    # 肿瘤
-    tumor = models.TextField(null=True, blank=True)
+    # photos = models.TextField(null=True, blank=True)
+    # frontal_photos = models.CharField(verbose_name='正面照', max_length=255, null=True, blank=True)
+    # front_eye_photos = models.CharField(verbose_name='眼前节照', max_length=255, null=True, blank=True)
+    frontal_photos = models.BooleanField(verbose_name='正面照', default=False)
+    front_eye_photos = models.BooleanField(verbose_name='眼前节照', default=False)
 
-    # 其他
-    other_info = models.TextField(null=True, blank=True)
+    # pathology_report = models.CharField(verbose_name='病理报告', max_length=255, null=True, blank=True)
+    pathology_report = models.BooleanField(verbose_name='病理报告', default=False)
 
-    # 鼻内镜检查
-    nasal_endoscopy = models.TextField(null=True, blank=True)
-
-    # 左鼻腔占位
-    left_nasal_cavity_occupancy = models.TextField(null=True, blank=True)
-
-    # 右鼻腔占位
-    right_nasal_cavity_occupancy = models.TextField(null=True, blank=True)
-
-    # 其他
-    other_nasal_endoscopy_info = models.TextField(null=True, blank=True)
-
-    # 其他部位或全身疾病
-    other_body_or_systemic_disease = models.TextField(null=True, blank=True)
-
-    # 影像数据
-    imaging_data = models.TextField(null=True, blank=True)
-
-    # 正面照，眼前节照
-    photos = models.TextField(null=True, blank=True)
-
-    # 病理报告
-    pathology_report = models.TextField(null=True, blank=True)
-
-    # 其他特殊影像资料
-    other_special_imaging_data = models.TextField(null=True, blank=True)
+    # other_special_imaging_data = models.TextField(null=True, blank=True)
+    # intraoperative_resection = models.CharField(verbose_name='术中切除物图片', max_length=255, null=True, blank=True)
+    # nasal_endoscopy_photo = models.CharField(verbose_name='鼻内镜检查图片', max_length=255, null=True, blank=True)
+    # lacrimal_endoscopy_photo = models.CharField(verbose_name='泪小管内镜图片', max_length=255, null=True, blank=True)
+    intraoperative_resection = models.BooleanField(verbose_name='术中切除物图片', default=False)
+    nasal_endoscopy_photo = models.BooleanField(verbose_name='鼻内镜检查图片', default=False)
+    lacrimal_endoscopy_photo = models.BooleanField(verbose_name='泪小管内镜图片', default=False)
 
     def __str__(self):
         return self.patient_id
