@@ -1,4 +1,5 @@
 import os
+import shutil
 from datetime import datetime
 from django.utils import timezone
 import json
@@ -154,6 +155,14 @@ class PatientInfoView(View):
             OtherInfo.objects.filter(patient_id=patient_id).delete()
         except Exception as e:
             return JsonResponse({'success': False, 'errCode': 500, 'message': str(e)}, status=500)
+
+        try:
+            patient_folder = os.path.join(settings.IMG_UPLOAD, patient_id)
+            if os.path.exists(patient_folder):
+                shutil.rmtree(patient_folder)  # 删除文件夹及其内容
+        except Exception as e:
+            return JsonResponse(
+                {'success': False, 'errCode': 500, 'message': f"Error deleting patient folder: {str(e)}"}, status=500)
 
         return JsonResponse(response_template)
 
