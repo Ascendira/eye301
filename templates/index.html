@@ -12,3 +12,47 @@
 <form method="get" action="/otherInfo/img/get/2/sagittal_ct">
         <button type="submit">Download File</button>
 </form>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Patient</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Delete Patient Information</h1>
+    <form id="deleteForm">
+        <label for="patient_id">Patient ID:</label>
+        <input type="text" id="patient_id" name="patient_id" required>
+        <button type="submit">Delete Patient</button>
+    </form>
+
+    <div id="response"></div>
+
+    <script>
+        $(document).ready(function () {
+            $('#deleteForm').on('submit', function (event) {
+                event.preventDefault(); // 阻止表单默认提交行为
+
+                var patient_id = $('#patient_id').val(); // 获取患者ID
+                var url = `/patientInfo/delete/${patient_id}`; // 替换为你的删除视图的URL
+
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    contentType: 'application/json',
+                    success: function (response) {
+                        $('#response').html('<p style="color: green;">' + response.message + '</p>');
+                    },
+                    error: function (xhr, status, error) {
+                        var errorMessage = JSON.parse(xhr.responseText).message;
+                        $('#response').html('<p style="color: red;">' + errorMessage + '</p>');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
