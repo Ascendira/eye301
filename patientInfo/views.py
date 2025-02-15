@@ -1,9 +1,11 @@
+import os
 from datetime import datetime
 from django.utils import timezone
 import json
 
 # Create your views here.
-from django.http import JsonResponse
+from django.http import JsonResponse, FileResponse
+from eye301 import settings
 from django.shortcuts import render
 
 # Create your views here.
@@ -21,6 +23,8 @@ response_template = {
     }
 }
 
+def index(request):
+    return render(request,"index.html")
 
 class PatientInfoView(View):
     def post(self, request, date):
@@ -28,7 +32,7 @@ class PatientInfoView(View):
             naive_date = datetime.strptime(date, "%Y-%m-%d-%H-%M-%S")
             diagnosis_date = timezone.make_aware(naive_date)
         except ValueError:
-            return JsonResponse({'success': False, 'errCode': 400, 'message': '日期格式错误'}, status=400)
+            return JsonResponse({'success': False, 'errCode': 400, 'message': 'Date Format Error'}, status=400)
 
         data = json.loads(request.body)['data']
 
@@ -104,10 +108,6 @@ class PatientInfoView(View):
                     'right_nasal_cavity_occupancy':data['right_nasal_cavity_occupancy'],  # 右鼻腔占位
                     'other_nasal_endoscopy_info':data['other_nasal_endoscopy_info'],  # 其他
                     'other_body_or_systemic_disease':data['other_body_or_systemic_disease'],  # 其他部位或全身疾病
-                    'imaging_data':data['imaging_data'],  # 影像数据
-                    'photos':data['photos'],  # 正面照，眼前节照
-                    'pathology_report':data['pathology_report'],  # 病理报告
-                    'other_special_imaging_data':data['other_special_imaging_data'],  # 其他特殊影像资料
                 }
             )
         return JsonResponse(response_template)
@@ -123,7 +123,7 @@ class PatientInfoView(View):
         # 查询全部病人信息
         info = mBaseInfo.objects.filter(patient_id=patient_id).values()
         if not info:
-            return JsonResponse({'success': False, 'errCode': 400, 'message': '未查询到病人'}, status=400)
+            return JsonResponse({'success': False, 'errCode': 400, 'message': 'No Patient Found'}, status=400)
         info = list(info)[0]
 
         eye_info = list(EyeInfo.objects.filter(patient_id=patient_id).values())
@@ -140,7 +140,7 @@ class PatientInfoView(View):
         # 查询基础信息
         base_info = mBaseInfo.objects.filter(patient_id=patient_id).values()
         if not base_info:
-            return JsonResponse({'success': False, 'errCode': 400, 'message': '未查询到病人'}, status=400)
+            return JsonResponse({'success': False, 'errCode': 400, 'message': 'No Patient Found'}, status=400)
 
         response = response_template.copy()
         response['data'] = list(base_info)[0]
@@ -206,7 +206,7 @@ class BaseInfo(View):
                 allergy_history=data['allergy_history'],
                 other_allergy_history=data['other_allergy_history'], )
         except:
-            return JsonResponse({'success': False, 'errCode': 400, 'message': '关键字段缺失'}, status=400)
+            return JsonResponse({'success': False, 'errCode': 400, 'message': 'Key Fields Are Missing'}, status=400)
         return JsonResponse(response_template)
 
     def get(self, request, pageNum, pageSize):
@@ -228,3 +228,70 @@ class BaseInfo(View):
             'data': data
         }
         return JsonResponse(response)
+
+class Image(View):
+    def post(self, request, patient_id, img_type):
+        img = request.FILES.get('img')
+        img_name = img.name
+        from django.utils.text import get_valid_filename
+        img_name = get_valid_filename(img_name)
+        # 图片后缀名
+        ext = os.path.splitext(img_name)[1]
+        if not ext.lower() in ['.jpg', '.png', '.pdf']:
+            return JsonResponse({'success': False, 'errCode': 400, 'message': 'File Type Error'}, status=400)
+
+        # 检查病人是否存在
+        try:
+            other_info = OtherInfo.objects.get(patient_id=patient_id)
+        except Exception as e:
+            return JsonResponse({'success': False, 'errCode': 404, 'message': 'Patient Information Does Not Exist'}, status=404)
+
+        patient_folder = os.path.join(settings.IMG_UPLOAD, patient_id)
+        os.makedirs(patient_folder, exist_ok=True)
+
+        img_name = f'{img_type}{ext}'
+        img_path = os.path.join(patient_folder, img_name)
+
+        try:
+            with open(img_path, 'wb') as fp:
+                for chunk in img.chunks():
+                    fp.write(chunk)
+        except Exception as e:
+            return JsonResponse({'success': False, 'errCode': 400, 'message': str(e)}, status=400)
+
+        if not hasattr(other_info, img_type):
+            return JsonResponse({'success': False, 'errCode': 400, 'message': f'invalid img_type: {img_type}'},
+                                status=400)
+
+        setattr(other_info, img_type, True)
+        other_info.save()
+
+        return JsonResponse(response_template)
+
+    def get(self, request, patient_id, img_type):
+        try:
+            other_info = OtherInfo.objects.get(patient_id=patient_id)
+        except Exception as e:
+            return JsonResponse({'success': False, 'errCode': 404, 'message': 'Patient Information Does Not Exist'}, status=404)
+
+        if not hasattr(other_info, img_type):
+            return JsonResponse({'success': False, 'errCode': 400, 'message': f'invalid img_type: {img_type}'},
+                                status=400)
+
+        field_value = getattr(other_info, img_type)
+
+        if field_value:
+            patient_folder = os.path.join(settings.IMG_UPLOAD, patient_id)
+            base_img_name = f'{img_type}'
+            extensions = ['.jpg', '.png', '.pdf']
+            for ext in extensions:
+                img_name = base_img_name + ext
+                img_path = os.path.join(patient_folder, img_name)
+                print(img_path)
+                if os.path.exists(img_path):
+                    return FileResponse(open(img_path, 'rb'), as_attachment=True, filename=img_name)
+
+        return JsonResponse({'success': False, 'message': 'File does not exist'}, status=404)
+
+
+
