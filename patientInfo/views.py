@@ -1,6 +1,8 @@
 import os
 import shutil
 from datetime import datetime
+
+from django.db import transaction
 from django.utils import timezone
 import json
 
@@ -273,10 +275,11 @@ class Image(View):
                                 status=400)
 
         print("other_info", other_info)
-        print("img_type" + img_type)
+        print("img_type", img_type)
 
-        setattr(other_info, img_type, True)
-        other_info.save()
+        with transaction.atomic():
+            setattr(other_info, img_type, True)
+            other_info.save()
 
         return JsonResponse(response_template)
 
