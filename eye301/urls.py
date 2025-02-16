@@ -17,6 +17,8 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
+from eye301 import settings
+from django.conf.urls.static import static
 import patientInfo.views
 
 app_name = 'patientInfo'
@@ -32,5 +34,7 @@ urlpatterns = [
     path("patientInfo/get/base/<str:patient_id>", patientInfo.views.PatientInfoView.as_view()),
     path("patientInfo/delete/<str:patient_id>", patientInfo.views.PatientInfoView.as_view()),
     path("otherInfo/img/post/<str:patient_id>/<str:img_type>", patientInfo.views.Image.as_view()),
-    path("otherInfo/img/get/<str:patient_id>/<str:img_type>", patientInfo.views.Image.as_view())
+    path("otherInfo/img/get/<str:patient_id>/", patientInfo.views.Image.as_view())
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -26,6 +26,18 @@ response_template = {
     }
 }
 
+file_types = [
+    "axis_ct",
+    "sagittal_ct",
+    "coronal_ct",
+    "frontal_photos",
+    "front_eye_photos",
+    "pathology_report",
+    "intraoperative_resection",
+    "nasal_endoscopy_photo",
+    "lacrimal_endoscopy_photo"
+]
+
 def index(request):
     return render(request,"index.html")
 
@@ -283,27 +295,25 @@ class Image(View):
 
         return JsonResponse(response_template)
 
-    def get(self, request, patient_id, img_type):
+    def get(self, request, patient_id):
         try:
             other_info = OtherInfo.objects.get(patient_id=patient_id)
         except Exception as e:
             return JsonResponse({'success': False, 'errCode': 404, 'message': 'Patient Information Does Not Exist'}, status=404)
 
-        if not hasattr(other_info, img_type):
-            return JsonResponse({'success': False, 'errCode': 400, 'message': f'invalid img_type: {img_type}'},
-                                status=400)
+        files_urls = {file_type: None for file_type in file_types}
 
-        field_value = getattr(other_info, img_type)
+        patient_folder = os.path.join(settings.IMG_UPLOAD, patient_id)
+        extensions = ['.jpg', '.png', '.pdf']
 
-        if field_value:
-            patient_folder = os.path.join(settings.IMG_UPLOAD, patient_id)
-            base_img_name = f'{img_type}'
-            extensions = ['.jpg', '.png', '.pdf']
+        for file_type in file_types:
+            base_img_name = f'{file_type}'
             for ext in extensions:
                 img_name = base_img_name + ext
                 img_path = os.path.join(patient_folder, img_name)
-                print(img_path)
                 if os.path.exists(img_path):
-                    return FileResponse(open(img_path, 'rb'), as_attachment=True, filename=img_name)
+                    img_url = os.path.join(settings.MEDIA_URL, patient_id, img_name)
+                    files_urls[file_type] = img_url
+                    break
 
-        return JsonResponse({'success': False, 'errCode': 404, 'message': 'File does not exist'}, status=404)
+        return JsonResponse({'success': True, 'urls': files_urls})
