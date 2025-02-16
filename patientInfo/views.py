@@ -278,6 +278,7 @@ class Image(View):
         print("img_type", img_type)
 
         with transaction.atomic():
+            other_info = OtherInfo.objects.select_for_update().get(patient_id=patient_id)
             setattr(other_info, img_type, True)
             other_info.save()
 

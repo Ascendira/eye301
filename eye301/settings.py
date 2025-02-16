@@ -90,9 +90,6 @@ DATABASES = {
         'PASSWORD': '@Ljc3188152498',
         'HOST': '47.93.218.0',
         'PORT': 3306,
-        'OPTIONS': {
-            'isolation_level': 'SERIALIZABLE',  # 设置隔离级别为 SERIALIZABLE
-        },
     }
 }
 
