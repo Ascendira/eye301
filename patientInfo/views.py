@@ -257,6 +257,10 @@ class Image(View):
         except Exception as e:
             return JsonResponse({'success': False, 'errCode': 404, 'message': 'Patient Information Does Not Exist'}, status=404)
 
+        if not hasattr(other_info, img_type):
+            return JsonResponse({'success': False, 'errCode': 400, 'message': f'invalid img_type: {img_type}'},
+                                status=400)
+
         patient_folder = os.path.join(settings.IMG_UPLOAD, patient_id)
         os.makedirs(patient_folder, exist_ok=True)
 
@@ -270,14 +274,9 @@ class Image(View):
         except Exception as e:
             return JsonResponse({'success': False, 'errCode': 400, 'message': str(e)}, status=400)
 
-        if not hasattr(other_info, img_type):
-            return JsonResponse({'success': False, 'errCode': 400, 'message': f'invalid img_type: {img_type}'},
-                                status=400)
-
-        print("other_info", other_info)
-        print("img_type", img_type)
-
         with transaction.atomic():
+            print("other_info", other_info)
+            print("img_type", img_type)
             other_info = OtherInfo.objects.select_for_update().get(patient_id=patient_id)
             setattr(other_info, img_type, True)
             other_info.save()
