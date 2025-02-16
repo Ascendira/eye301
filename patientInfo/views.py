@@ -312,7 +312,7 @@ class Image(View):
                 img_name = base_img_name + ext
                 img_path = os.path.join(patient_folder, img_name)
                 if os.path.exists(img_path):
-                    img_url = os.path.join(settings.MEDIA_URL, patient_id, img_name)
+                    img_url = os.path.join(settings.IMG_URL, patient_id, img_name)
                     files_urls[file_type] = img_url
                     break
 

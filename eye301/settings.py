@@ -51,11 +51,12 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 # 上传图片的路径
+IMG_URL = '/static/uploads/'
+
 IMG_UPLOAD = os.path.join(BASE_DIR, 'static/uploads')
+
+STATICFILES_DIRS = (os.path.join(BASE_DIR,'static'),)
 
 CORS_ALLOWED_ORIGINS = [
     'http://8.147.220.2:8087',  # 允许的前端来源

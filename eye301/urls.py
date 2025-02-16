@@ -37,4 +37,4 @@ urlpatterns = [
     path("otherInfo/img/get/<str:patient_id>/", patientInfo.views.Image.as_view())
 ]
 
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.IMG_URL, document_root=settings.IMG_UPLOAD)
