@@ -272,6 +272,9 @@ class Image(View):
             return JsonResponse({'success': False, 'errCode': 400, 'message': f'invalid img_type: {img_type}'},
                                 status=400)
 
+        print("other_info", other_info)
+        print("img_type" + img_type)
+
         setattr(other_info, img_type, True)
         other_info.save()
 
