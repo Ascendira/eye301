@@ -2,6 +2,8 @@ import os
 import shutil
 from datetime import datetime
 
+from celery import shared_task
+
 from django.db import transaction
 from django.utils import timezone
 import json
@@ -240,6 +242,13 @@ class BaseInfo(View):
         }
         return JsonResponse(response)
 
+@shared_task
+def process_image_upload(other_info, img_type):
+    print("other_info", other_info)
+    print("img_type", img_type)
+    setattr(other_info, img_type, True)
+    other_info.save()
+
 class Image(View):
     def post(self, request, patient_id, img_type):
         img = request.FILES.get('img')
@@ -257,6 +266,10 @@ class Image(View):
         except Exception as e:
             return JsonResponse({'success': False, 'errCode': 404, 'message': 'Patient Information Does Not Exist'}, status=404)
 
+        if not hasattr(other_info, img_type):
+            return JsonResponse({'success': False, 'errCode': 400, 'message': f'invalid img_type: {img_type}'},
+                                status=400)
+
         patient_folder = os.path.join(settings.IMG_UPLOAD, patient_id)
         os.makedirs(patient_folder, exist_ok=True)
 
@@ -270,16 +283,7 @@ class Image(View):
         except Exception as e:
             return JsonResponse({'success': False, 'errCode': 400, 'message': str(e)}, status=400)
 
-        if not hasattr(other_info, img_type):
-            return JsonResponse({'success': False, 'errCode': 400, 'message': f'invalid img_type: {img_type}'},
-                                status=400)
-
-        print("other_info", other_info)
-        print("img_type", img_type)
-
-        with transaction.atomic():
-            setattr(other_info, img_type, True)
-            other_info.save()
+        process_image_upload(other_info, img_type)
 
         return JsonResponse(response_template)
 
