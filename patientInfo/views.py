@@ -276,6 +276,14 @@ class Image(View):
         patient_folder = os.path.join(settings.IMG_UPLOAD, patient_id)
         os.makedirs(patient_folder, exist_ok=True)
 
+        extensions = ['.jpg', '.png', '.pdf']
+
+        for ext in extensions:
+            img_name = f'{img_type}' + ext
+            img_path = os.path.join(patient_folder, img_name)
+            if os.path.exists(img_path):
+                os.remove(img_path)
+
         img_name = f'{img_type}{ext}'
         img_path = os.path.join(patient_folder, img_name)
 
